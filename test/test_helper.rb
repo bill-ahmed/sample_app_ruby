@@ -15,4 +15,26 @@ class ActiveSupport::TestCase
   def is_logged_in?
     !session[:user_id].nil?
   end
+  
+  # Log in as a particular user.
+  def log_in_as(user)
+    session[:user_id] = user.id
+  end
+  
+  # Remembers a user in a persistent session.
+  def remember(user)
+    user.remember
+    cookies.permanent.signed[:user_id] = user.id
+    cookies.permanent[:remember_token] = user.remember_token
+  end
+end
+
+class ActionDispatch::IntegrationTest
+
+  # Log in as a particular user.
+  def log_in_as(user, password: 'password', remember_me: '1')
+    post login_path, params: { session: { email: user.email,
+                                          password: password,
+                                          remember_me: remember_me } }
+  end
 end
